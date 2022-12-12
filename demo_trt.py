@@ -18,8 +18,9 @@ from detector_trt import Detector
 
 def detect(video_path, engine_file_path):
     detector = Detector(engine_file_path)
-    # capture = cv2.VideoCapture(video_path)
-    capture = cv2.VideoCapture(0)
+    capture = cv2.VideoCapture(video_path)
+    #capture = cv2.VideoCapture(0)
+    #capture = cv2.VideoCapture("tcpclientsrc host=127.0.0.1 port=5001 ! gdpdepay ! videoconvert ! video/x-raw, format=BGR ! appsink sync=false drop=true max-buffers=3 max-lateness=100000000")
     fps = 0.0
     while True:
         ret, img = capture.read()
@@ -59,6 +60,6 @@ if __name__ == '__main__':
     video_path = './video/test.mp4'
     PLUGIN_LIBRARY = "./weights/libmyplugins.so"
     ctypes.CDLL(PLUGIN_LIBRARY)
-    engine_file_path = './weights/yolov5s.engine'
+    engine_file_path = './weights/yolov5s6.engine'
     detect(video_path, engine_file_path)
 

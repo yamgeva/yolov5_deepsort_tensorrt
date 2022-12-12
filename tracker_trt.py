@@ -31,7 +31,6 @@ def draw_bboxes(image, bboxes, line_thickness):
 
     for (x1, y1, x2, y2, cls_id, pos_id) in bboxes:
         color = (0, 255, 0)
-
         check_point_x = x1
         check_point_y = int(y1 + ((y2 - y1) * 0.6))
 

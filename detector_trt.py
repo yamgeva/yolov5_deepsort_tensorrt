@@ -16,7 +16,7 @@ import pycuda.driver as cuda
 TRT_LOGGER = trt.Logger()
 INPUT_W = 640
 INPUT_H = 640
-CONF_THRESH = 0.1
+CONF_THRESH = 0.6
 IOU_THRESHOLD = 0.4
 
 # load coco labels
@@ -224,14 +224,18 @@ class Detector:
         boxes = boxes[si, :]
         scores = scores[si].tolist()
         classid = classid[si].tolist()
+
         # Trandform bbox from [center_x, center_y, w, h] to [x1, y1, x2, y2]
         boxes = self.xywh2xyxy(origin_h, origin_w, boxes).tolist()
+
         # Do nms
         # indices = torchvision.ops.nms(boxes, scores, iou_threshold=IOU_THRESHOLD).cpu()
         indices = cv2.dnn.NMSBoxes(boxes, scores, score_threshold=CONF_THRESH, nms_threshold=IOU_THRESHOLD)
+
         result_boxes = np.array(boxes)
         result_scores = np.array(scores)
         result_classid = np.array(classid)
+
         if len(boxes) > 0:
             result_boxes = result_boxes[indices, :]
             result_scores = result_scores[indices]
@@ -240,14 +244,15 @@ class Detector:
         result_boxes = np.reshape(result_boxes, (-1, 4))
         result_boxes[:, 2] = result_boxes[:, 2] + result_boxes[:, 0]
         result_boxes[:, 3] = result_boxes[:, 3] + result_boxes[:, 1]
+
         #
         results_trt = []
         for i in range(len(result_boxes)):
             x1, y1 = int(result_boxes[i][0]), int(result_boxes[i][1])
             x2, y2 = int(result_boxes[i][2]), int(result_boxes[i][3])
-            cid = result_classid[i][0]
+            cid = result_classid[i]
             lable = categories[int(cid)]
-            conf = result_scores[i][0]
+            conf = result_scores[i]
             results_trt.append(
                 (x1, y1, x2, y2, lable, conf))
 
